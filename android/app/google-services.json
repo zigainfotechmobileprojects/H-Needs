@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "421155415173",
+    "project_id": "h-needs",
+    "storage_bucket": "h-needs.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:421155415173:android:461c75cebc807d695e75ec",
+        "android_client_info": {
+          "package_name": "com.hneeds.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8VqAXZDN-g45fKfUtf_8ogmOCYYkSNG0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
