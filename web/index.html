@@ -17,6 +17,23 @@
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A Ecommerce Website.">
 
+  <!-- Preconnect to domains you frequently interact with -->
+  <link rel="preconnect" href="https://www.gstatic.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <!-- If you use Google Fonts -->
+  <link rel="preconnect" href="https://maps.googleapis.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net"> <!-- If you use a CDN like this -->
+  <link rel="preconnect" href="https://gem-b5006.firebaseapp.com"> <!-- For Firebase resources -->
+
+
+  <!-- Preload critical resources for faster loading -->
+  <!-- Preload your main CSS -->
+  <link rel="preload" href="style.css" as="style">
+  <!-- Preload your main JavaScript bundle -->
+  <link rel="preload" href="main.dart.js?version=7.4" as="script">
+  <!-- Preload your logo if it's visible in the initial viewport -->
+  <link rel="preload" href="assets/HNEEDS.png" as="image">
+  <!-- Preload firebase messaging service worker if it's essential early on -->
+  <link rel="preload" href="/firebase-messaging-sw.js" as="script">
 
 
   <!-- iOS meta tags & icons -->
@@ -57,7 +74,7 @@
   <!-- <div class="header-top-line"></div> -->
   <div class="header-container d-flex align-items-center justify-content-between">
     <div class="header-start d-flex gap-4 align-items-center">
-      <img class="logo" src="assets/HNEEDS.png" alt="">
+      <img class="logo" src="assets/HNEEDS.png" alt="Hneeds Logo" width="150" height="50">
       <div class="placeholder"></div>
       <div class="placeholder"></div>
       <div class="placeholder"></div>
@@ -66,8 +83,8 @@
       <div class="placeholder placeholder-wide"></div>
       <div class="placeholder"></div>
       <div class="placeholder"></div>
-      <img src="assets/cart_icon.svg" alt="">
-      <img src="assets/menu_icon.svg" alt="">
+      <img src="assets/cart_icon.svg" alt="Shopping Cart Icon" width="24" height="24">
+      <img src="assets/menu_icon.svg" alt="Menu Icon" width="24" height="24">
     </div>
   </div>
 </header>
