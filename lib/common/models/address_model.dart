@@ -13,6 +13,10 @@ class AddressModel {
   String? streetNumber;
   String? floorNumber;
   String? houseNumber;
+  int? cityId;
+  int? stateId;
+  int? countryId;
+  String? pincode;
 
   AddressModel({
     this.id,
@@ -26,9 +30,13 @@ class AddressModel {
     this.userId,
     this.method,
     this.contactPersonName,
-    this.houseNumber,
-    this.floorNumber,
     this.streetNumber,
+    this.floorNumber,
+    this.houseNumber,
+    this.cityId,
+    this.stateId,
+    this.countryId,
+    this.pincode,
   });
 
   AddressModel.fromJson(Map<String, dynamic> json) {
@@ -46,6 +54,10 @@ class AddressModel {
     streetNumber = json['road'];
     floorNumber = json['floor'];
     houseNumber = json['house'];
+    cityId = json['city_id'];
+    stateId = json['state_id'];
+    countryId = json['country_id'];
+    pincode = json['pincode'];
   }
 
   Map<String, dynamic> toJson() {
@@ -64,6 +76,10 @@ class AddressModel {
     data['road'] = streetNumber;
     data['floor'] = floorNumber;
     data['house'] = houseNumber;
+    data['city_id'] = cityId;
+    data['state_id'] = stateId;
+    data['country_id'] = countryId;
+    data['pincode'] = pincode;
     return data;
   }
 }

@@ -76,6 +76,7 @@ class AppConstants {
       '/api/v1/customer/verify-profile-info';
   static const String getDeliveryInfo = '/api/v1/config/delivery-fee';
   static const String firebaseAuthVerify = '/api/v1/auth/firebase-auth-verify';
+  static const String getLocationDataUri = '/api/v1/get-city';
 
   //MESSAGING
   static const String getDeliverymanMessageUri =

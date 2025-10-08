@@ -13,24 +13,33 @@ import 'package:provider/provider.dart';
 class AddressWebWidget extends StatefulWidget {
   final TextEditingController contactPersonNameController;
   final TextEditingController contactPersonNumberController;
-  final FocusNode addressNode;
-  final FocusNode nameNode;
-  final FocusNode numberNode;
-  final bool isUpdateEnable;
-  final bool fromCheckout;
-  final AddressModel? address;
   final TextEditingController locationTextController;
   final TextEditingController streetNumberController;
   final TextEditingController houseNumberController;
   final TextEditingController floorNumberController;
+  final TextEditingController pincodeController;
+
+  final FocusNode addressNode;
+  final FocusNode nameNode;
+  final FocusNode numberNode;
   final FocusNode stateNode;
   final FocusNode houseNode;
   final FocusNode floorNode;
+
+  final bool isUpdateEnable;
+  final bool fromCheckout;
+  final AddressModel? address;
+
+  final int? cityId;
+  final int? stateId;
+  final int? countryId;
+
   const AddressWebWidget({
     super.key,
     required this.contactPersonNameController,
     required this.contactPersonNumberController,
-    required this.addressNode, required this.nameNode,
+    required this.addressNode,
+    required this.nameNode,
     required this.numberNode,
     required this.isUpdateEnable,
     required this.fromCheckout,
@@ -38,10 +47,14 @@ class AddressWebWidget extends StatefulWidget {
     required this.locationTextController,
     required this.streetNumberController,
     required this.houseNumberController,
+    required this.floorNumberController,
+    required this.pincodeController,
     required this.stateNode,
     required this.houseNode,
-    required this.floorNumberController,
     required this.floorNode,
+    this.cityId,
+    this.stateId,
+    this.countryId,
   });
 
   @override
@@ -51,136 +64,154 @@ class AddressWebWidget extends StatefulWidget {
 class _AddressWebWidgetState extends State<AddressWebWidget> {
   @override
   Widget build(BuildContext context) {
-
     final ConfigModel configModel = context.read<SplashProvider>().configModel!;
     final Size size = MediaQuery.of(context).size;
     final LocationProvider locationProvider = context.read<LocationProvider>();
     final AddressProvider addressProvider = context.read<AddressProvider>();
 
-    print('-----------(ADDRESS WEB WIDGET)------------${widget.address?.toJson().toString()}');
-    print('-----------(ADDRESS WEB WIDGET)------------${locationProvider.pickedAddressLatitude} and ${locationProvider.pickedAddressLongitude}');
-
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: !(configModel.googleMapStatus?? false) ? size.width * 0.06: 0.0,
-        vertical: !(configModel.googleMapStatus?? false) ? size.height * 0.02: 0.0,
+        horizontal: !(configModel.googleMapStatus ?? false)
+            ? size.width * 0.06
+            : 0.0,
+        vertical: !(configModel.googleMapStatus ?? false)
+            ? size.height * 0.02
+            : 0.0,
       ),
-      margin: EdgeInsets.symmetric(horizontal: !(configModel.googleMapStatus?? false) ? size.width * 0.08: 0.0),
+      margin: EdgeInsets.symmetric(
+        horizontal: !(configModel.googleMapStatus ?? false)
+            ? size.width * 0.08
+            : 0.0,
+      ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: Theme.of(context).cardColor,
-        boxShadow: [
-          BoxShadow(color:Theme.of(context).shadowColor, blurRadius: 10)
-        ],
+        boxShadow: [BoxShadow(color: Theme.of(context).shadowColor, blurRadius: 10)],
       ),
-      child: Column(children: [
+      child: Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Left side: Address details form
+              Expanded(
+                flex: 5,
+                child: AddressDetailsWebWidget(
+                  contactPersonNameController: widget.contactPersonNameController,
+                  contactPersonNumberController: widget.contactPersonNumberController,
+                  addressNode: widget.addressNode,
+                  nameNode: widget.nameNode,
+                  numberNode: widget.numberNode,
+                  isUpdateEnable: widget.isUpdateEnable,
+                  address: widget.address,
+                  fromCheckout: widget.fromCheckout,
+                  locationTextController: widget.locationTextController,
+                  streetNumberController: widget.streetNumberController,
+                  houseNumberController: widget.houseNumberController,
+                  houseNode: widget.houseNode,
+                  stateNode: widget.stateNode,
+                  florNumberController: widget.floorNumberController,
+                  florNode: widget.floorNode,
+                  // pincodeController: widget.pincodeController,
+                ),
+              ),
 
-        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              // Right side: Map + Button (if Google Map enabled)
+              if (configModel.googleMapStatus ?? false) ...[
+                Selector<LocationProvider, String?>(
+                  selector: (context, provider) => provider.pickedAddressLatitude,
+                  builder: (context, lat, child) {
+                    return Expanded(
+                      flex: 6,
+                      child: Column(
+                        children: [
+                          if (widget.address != null) ...[
+                            if (locationProvider.pickedAddressLatitude == null ||
+                                locationProvider.pickedAddressLongitude == null) ...[
+                              const WithoutMapWidget(),
+                            ],
+                            if (locationProvider.pickedAddressLatitude != null &&
+                                locationProvider.pickedAddressLongitude != null) ...[
+                              AddressMapWebWidget(
+                                isUpdateEnable: widget.isUpdateEnable,
+                                address: widget.address,
+                                fromCheckout: widget.fromCheckout,
+                                locationTextController: widget.locationTextController,
+                              ),
+                            ]
+                          ] else ...[
+                            AddressMapWebWidget(
+                              isUpdateEnable: widget.isUpdateEnable,
+                              address: widget.address,
+                              fromCheckout: widget.fromCheckout,
+                              locationTextController: widget.locationTextController,
+                            ),
+                          ],
+                          const SizedBox(height: 16),
 
-          Expanded(flex: 5, child: AddressDetailsWebWidget(
-            contactPersonNameController: widget.contactPersonNameController,
-            contactPersonNumberController: widget.contactPersonNumberController,
-            addressNode: widget.addressNode,
-            nameNode: widget.nameNode,
-            numberNode: widget.numberNode,
-            isUpdateEnable: widget.isUpdateEnable,
-            address: widget.address,
-            fromCheckout: widget.fromCheckout,
-            locationTextController: widget.locationTextController,
-            streetNumberController: widget.streetNumberController,
-            houseNumberController: widget.houseNumberController,
-            houseNode: widget.houseNode,
-            stateNode: widget.stateNode,
-            florNumberController: widget.floorNumberController,
-            florNode: widget.floorNode,
-          )),
-
-          if(configModel.googleMapStatus ?? false)...[
-            Selector<LocationProvider, String?>(
-              selector: (context, locationProvider) => locationProvider.pickedAddressLatitude,
-              builder: (context, lat, child){
-                
-                return Expanded(flex : 6, child: Column(children: [
-
-                  if(widget.address != null)...[
-
-                    if(locationProvider.pickedAddressLongitude == null && locationProvider.pickedAddressLatitude == null)...[
-                      const WithoutMapWidget(),
-                    ],
-
-                    if(locationProvider.pickedAddressLatitude != null && locationProvider.pickedAddressLongitude != null)...[
-                      AddressMapWebWidget(
-                        isUpdateEnable: widget.isUpdateEnable,
-                        address: widget.address,
-                        fromCheckout: widget.fromCheckout,
-                        locationTextController: widget.locationTextController,
+                          // Save/Update button
+                          Row(
+                            children: [
+                              Expanded(child: Container()),
+                              Expanded(
+                                child: AddressButtonWidget(
+                                  isUpdateEnable: widget.isUpdateEnable,
+                                  fromCheckout: widget.fromCheckout,
+                                  contactPersonNumberController: widget.contactPersonNumberController,
+                                  contactPersonNameController: widget.contactPersonNameController,
+                                  address: widget.address,
+                                  location: widget.locationTextController.text,
+                                  streetNumberController: widget.streetNumberController,
+                                  houseNumberController: widget.houseNumberController,
+                                  floorNumberController: widget.floorNumberController,
+                                  countryCode: addressProvider.countryCode ?? '',
+                                  pincodeController: widget.pincodeController,
+                                  cityId: widget.cityId,
+                                  stateId: widget.stateId,
+                                  countryId: widget.countryId,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ]
+                    );
+                  },
+                ),
+              ],
+            ],
+          ),
 
-                  ],
-
-                  if(widget.address == null)...[
-                    AddressMapWebWidget(
-                      isUpdateEnable: widget.isUpdateEnable,
-                      address: widget.address,
-                      fromCheckout: widget.fromCheckout,
-                      locationTextController: widget.locationTextController,
-                    ),
-                  ],
-
-                  Row(children: [
-
-                    Expanded(child: Container()),
-
-                    Expanded(child: AddressButtonWidget(
-                      isUpdateEnable: widget.isUpdateEnable,
-                      fromCheckout: widget.fromCheckout,
-                      contactPersonNumberController: widget.contactPersonNumberController,
-                      contactPersonNameController: widget.contactPersonNameController,
-                      address: widget.address,
-                      location: widget.locationTextController.text,
-                      streetNumberController: widget.streetNumberController,
-                      houseNumberController: widget.houseNumberController,
-                      floorNumberController: widget.floorNumberController,
-                      countryCode: addressProvider.countryCode ?? '',
-                    )),
-
-                  ]),
-
-                ]));
-              },
+          // Button row if Google Map is not enabled
+          if (!(configModel.googleMapStatus ?? false)) ...[
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(child: Container()),
+                Expanded(
+                  child: AddressButtonWidget(
+                    isUpdateEnable: widget.isUpdateEnable,
+                    fromCheckout: widget.fromCheckout,
+                    contactPersonNumberController: widget.contactPersonNumberController,
+                    contactPersonNameController: widget.contactPersonNameController,
+                    address: widget.address,
+                    location: widget.locationTextController.text,
+                    streetNumberController: widget.streetNumberController,
+                    houseNumberController: widget.houseNumberController,
+                    floorNumberController: widget.floorNumberController,
+                    countryCode: addressProvider.countryCode ?? '',
+                    pincodeController: widget.pincodeController,
+                    cityId: widget.cityId,
+                    stateId: widget.stateId,
+                    countryId: widget.countryId,
+                  ),
+                ),
+                Expanded(child: Container()),
+              ],
             ),
           ],
-
-
-        ]),
-
-        if(!(configModel.googleMapStatus?? false))...[
-          Row(children: [
-
-            Expanded(child: Container()),
-
-            Expanded(child: AddressButtonWidget(
-              isUpdateEnable: widget.isUpdateEnable,
-              fromCheckout: widget.fromCheckout,
-              contactPersonNumberController: widget.contactPersonNumberController,
-              contactPersonNameController: widget.contactPersonNameController,
-              address: widget.address,
-              location: widget.locationTextController.text,
-              streetNumberController: widget.streetNumberController,
-              houseNumberController: widget.houseNumberController,
-              floorNumberController: widget.floorNumberController,
-              countryCode: addressProvider.countryCode ?? '',
-            )),
-
-            Expanded(child: Container()),
-
-          ]),
         ],
-
-      ]),
+      ),
     );
   }
 }
-
-

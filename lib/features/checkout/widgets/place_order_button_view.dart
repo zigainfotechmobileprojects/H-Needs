@@ -153,28 +153,24 @@ class PlaceOrderButtonView extends StatelessWidget {
                     ));
                   }
                   PlaceOrderModel placeOrderBody = PlaceOrderModel(
-                    cart: carts,
-                    couponDiscountAmount:
-                        Provider.of<CouponProvider>(context, listen: false)
-                            .discount,
-                    couponDiscountTitle: '',
-                    deliveryAddressId: !selfPickup
-                        ? locationProvider
-                            .addressList![checkoutProvider.orderAddressIndex].id
-                        : 0,
-                    orderAmount: amount! + (deliveryCharge ?? 0),
-                    orderNote: orderNote ?? '',
-                    orderType: orderType,
-                    paymentMethod:
-                        checkoutProvider.selectedPaymentMethod!.getWay!,
-                    couponCode:
-                        Provider.of<CouponProvider>(context, listen: false)
-                            .coupon
-                            ?.code,
-                    branchId: branches[checkoutProvider.branchIndex].id,
-                    distance: selfPickup ? 0 : checkoutProvider.distance,
-                    selectedDeliveryArea: orderProvider.selectedAreaID,
-                  );
+  cart: carts,
+  couponDiscountAmount:
+      Provider.of<CouponProvider>(context, listen: false).discount,
+  couponDiscountTitle: '',
+  deliveryAddressId: !selfPickup
+      ? locationProvider.addressList![checkoutProvider.orderAddressIndex].id
+      : 0,
+  orderAmount: amount!, // <-- only amount
+  orderNote: orderNote ?? '',
+  orderType: orderType,
+  paymentMethod: checkoutProvider.selectedPaymentMethod!.getWay!,
+  couponCode:
+      Provider.of<CouponProvider>(context, listen: false).coupon?.code,
+  branchId: branches[checkoutProvider.branchIndex].id,
+  distance: selfPickup ? 0 : checkoutProvider.distance,
+  selectedDeliveryArea: orderProvider.selectedAreaID,
+);
+
                   if (placeOrderBody.paymentMethod == 'cash_on_delivery') {
                     log('------------(PLACE ORDER MODEL)-------------${placeOrderBody.toJson().toString()}');
 
@@ -191,11 +187,11 @@ class PlaceOrderButtonView extends StatelessWidget {
 
                     String url =
                         "customer_id=${profileProvider.userInfoModel?.id ?? ""}&&is_guest=$isGuest"
-                        "&&callback=${AppConstants.baseUrl}${RouteHelper.orderSuccessScreen}&&order_amount=${(placeOrderBody.orderAmount! + (deliveryCharge ?? 0)).toStringAsFixed(2)}";
+                        "&&callback=${AppConstants.baseUrl}${RouteHelper.orderSuccessScreen}&&order_amount=${(placeOrderBody.orderAmount!).toStringAsFixed(2)}";
 
                     String webUrl =
                         "customer_id=${profileProvider.userInfoModel?.id ?? ""}&&is_guest=$isGuest"
-                        "&&callback=$protocol//$hostname${kDebugMode ? ':$port' : ''}${RouteHelper.orderWebPayment}&&order_amount=${(amount! + (deliveryCharge ?? 0)).toStringAsFixed(2)}&&status=";
+                        "&&callback=$protocol//$hostname${kDebugMode ? ':$port' : ''}${RouteHelper.orderWebPayment}&&order_amount=${(amount!).toStringAsFixed(2)}&&status=";
 
                     String tokenUrl = convert.base64Encode(convert.utf8
                         .encode(ResponsiveHelper.isWeb() ? webUrl : url));

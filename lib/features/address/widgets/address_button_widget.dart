@@ -29,6 +29,10 @@ class AddressButtonWidget extends StatelessWidget {
   final AddressModel? address;
   final String location;
   final String countryCode;
+  final int? cityId;
+  final int? stateId;
+  final int? countryId;
+  final TextEditingController? pincodeController;
 
   const AddressButtonWidget({
     super.key,
@@ -41,162 +45,198 @@ class AddressButtonWidget extends StatelessWidget {
     required this.houseNumberController,
     required this.address,
     required this.location,
-    required this.countryCode
+    required this.countryCode,
+    this.cityId,
+    this.stateId,
+    this.countryId,
+    this.pincodeController,
   });
 
   @override
   Widget build(BuildContext context) {
-
     return Consumer<AddressProvider>(
       builder: (context, addressProvider, _) {
-        return Column(children: [
+        return Column(
+          children: [
+            // Show status or error messages
+            if (addressProvider.addressStatusMessage != null &&
+                addressProvider.addressStatusMessage!.isNotEmpty)
+              _buildMessageRow(
+                  addressProvider.addressStatusMessage!, Colors.green),
+            if (addressProvider.errorMessage != null &&
+                addressProvider.errorMessage!.isNotEmpty)
+              _buildMessageRow(addressProvider.errorMessage!, Colors.red),
+            const SizedBox(height: Dimensions.paddingSizeSmall),
 
-          addressProvider.addressStatusMessage != null ?
-          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-            addressProvider.addressStatusMessage!.isNotEmpty ? const CircleAvatar(backgroundColor: Colors.green, radius: 5) : const SizedBox.shrink(),
-            const SizedBox(width: 8),
-
-            Expanded(child: Text(addressProvider.addressStatusMessage ?? "",
-              style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Colors.green, height: 1),
-            ))
-          ]): Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-            addressProvider.errorMessage!.isNotEmpty
-                ? const CircleAvatar(backgroundColor: Colors.red, radius: 5)
-                : const SizedBox.shrink(),
-            const SizedBox(width: 8),
-
-            Expanded(child: Text(
-              addressProvider.errorMessage ?? "",
-              style: Theme.of(context).textTheme.displayMedium!.copyWith(fontSize: Dimensions.fontSizeSmall, color: Colors.red, height: 1),
-            ))
-
-          ]),
-          const SizedBox(height: Dimensions.paddingSizeSmall),
-
-          Container(
-            height: 50.0,
-            width: Dimensions.webScreenWidth,
-            margin: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-            child: Consumer<LocationProvider>(
-              builder: (context, locationProvider, _) {
-                return CustomButtonWidget(
-                  isLoading: addressProvider.isLoading,
-                  btnTxt: isUpdateEnable ? getTranslated('update_address', context) : getTranslated('save_location', context),
-                  onTap: locationProvider.isLoading ? null : () async => _onPressAction(locationProvider, context),
-                );
-              },
+            // Button
+            Container(
+              height: 50,
+              width: Dimensions.webScreenWidth,
+              margin: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+              child: Consumer<LocationProvider>(
+                builder: (context, locationProvider, _) {
+                  return CustomButtonWidget(
+                    isLoading: addressProvider.isLoading,
+                    btnTxt: isUpdateEnable
+                        ? getTranslated('update_address', context)
+                        : getTranslated('save_location', context),
+                    onTap: locationProvider.isLoading
+                        ? null
+                        : () async => _onPressAction(locationProvider, context),
+                  );
+                },
+              ),
             ),
-          ),
-        ]);
-      }
+          ],
+        );
+      },
     );
   }
 
-  Future<void> _onPressAction(LocationProvider locationProvider, BuildContext context) async {
-    final AddressProvider addressProvider = Provider.of<AddressProvider>(context, listen: false);
-    final LocationProvider locationProvider = context.read<LocationProvider>();
-    final CheckoutProvider checkoutProvider = Provider.of<CheckoutProvider>(context, listen: false);
-    final SplashProvider splashProvider = context.read<SplashProvider>();
-    List<Branches> branches = Provider.of<SplashProvider>(context, listen: false).configModel!.branches!;
-    bool isAvailable = branches.length == 1 && (branches[0].latitude == null || branches[0].latitude!.isEmpty);
+  Widget _buildMessageRow(String message, Color color) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CircleAvatar(backgroundColor: color, radius: 5),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            message,
+            style: rubikMedium.copyWith(
+                fontSize: Dimensions.fontSizeSmall, color: color, height: 1),
+          ),
+        ),
+      ],
+    );
+  }
 
-    String phone  = countryCode + contactPersonNumberController.text.trim();
-    bool isValidPhone = PhoneNumberCheckerHelper.isPhoneValidWithCountryCode(phone);
+  Future<void> _onPressAction(
+      LocationProvider locationProvider, BuildContext context) async {
+    final addressProvider = context.read<AddressProvider>();
+    final checkoutProvider = context.read<CheckoutProvider>();
+    final splashProvider = context.read<SplashProvider>();
 
-    print("---------------(PHONE)-----------------$phone");
-    print("---------------(IS VALID PHONE)--------$isValidPhone");
+    // ✅ Get dynamic city, state, country IDs
+    final selectedCityId = locationProvider.selectedCityId;
+    final selectedStateId = locationProvider.selectedStateId;
+    final selectedCountryId = locationProvider.selectedCountryId;
 
-    if(!isValidPhone){
-      showCustomSnackBar(getTranslated('invalid_phone_number', context), context);
-    }else{
-      if(!isAvailable) {
-        if(splashProvider.configModel?.googleMapStatus ?? false){
-          for (Branches branch in branches) {
-            double distance = Geolocator.distanceBetween(
-              double.parse(branch.latitude!), double.parse(branch.longitude!),
-              double.tryParse(locationProvider.pickedAddressLatitude ?? '')
-                  ?? locationProvider.currentPosition.latitude ,
-              double.tryParse(locationProvider.pickedAddressLongitude ?? '') ?? locationProvider.currentPosition.longitude ,
-            ) / 1000;
+    if (selectedCityId == null) {
+      showCustomSnackBar('Please select a valid city before saving.', context);
+      return;
+    }
 
-            if (distance < branch.coverage!) {
-              isAvailable = true;
-              break;
-            }
+    // ✅ Validate pincode
+    // if (pincodeController == null || pincodeController!.text.trim().isEmpty) {
+    //   showCustomSnackBar('Please enter a pincode', context);
+    //   return;
+    // }
+
+    // ✅ Validate phone number
+    String phone = countryCode + contactPersonNumberController.text.trim();
+    bool isValidPhone =
+        PhoneNumberCheckerHelper.isPhoneValidWithCountryCode(phone);
+    if (!isValidPhone) {
+      showCustomSnackBar(
+          getTranslated('invalid_phone_number', context), context);
+      return;
+    }
+
+    // ✅ Check service availability
+    List<Branches> branches = splashProvider.configModel!.branches ?? [];
+    bool isAvailable = branches.length == 1 &&
+        (branches[0].latitude == null || branches[0].latitude!.isEmpty);
+
+    if (!isAvailable) {
+      if (splashProvider.configModel?.googleMapStatus ?? false) {
+        for (Branches branch in branches) {
+          double distance = Geolocator.distanceBetween(
+                  double.parse(branch.latitude!),
+                  double.parse(branch.longitude!),
+                  double.tryParse(
+                          locationProvider.pickedAddressLatitude ?? '') ??
+                      locationProvider.currentPosition.latitude,
+                  double.tryParse(
+                          locationProvider.pickedAddressLongitude ?? '') ??
+                      locationProvider.currentPosition.longitude) /
+              1000;
+
+          if (distance < branch.coverage!) {
+            isAvailable = true;
+            break;
           }
-        }else{
-          isAvailable = true;
         }
+      } else {
+        isAvailable = true;
       }
+    }
 
-      if(!isAvailable) {
-        showCustomSnackBar(getTranslated('service_is_not_available', context), context);
+    if (!isAvailable) {
+      showCustomSnackBar(
+          getTranslated('service_is_not_available', context), context);
+      return;
+    }
 
-      }
-      else {
-
-        AddressModel addressModel = AddressModel(
-          addressType: addressProvider.getAllAddressType[addressProvider.selectAddressIndex],
-          contactPersonName: contactPersonNameController.text.trim(),
-          contactPersonNumber: phone,
-          address: locationProvider.address,
-          latitude: (splashProvider.configModel?.googleMapStatus ?? false)
-              ? (locationProvider.pickedAddressLatitude?.isNotEmpty ?? false)
+    // ✅ Build AddressModel with verified IDs
+    AddressModel addressModel = AddressModel(
+      addressType:
+          addressProvider.getAllAddressType[addressProvider.selectAddressIndex],
+      contactPersonName: contactPersonNameController.text.trim(),
+      contactPersonNumber: phone,
+      address: locationProvider.address,
+      latitude: (splashProvider.configModel?.googleMapStatus ?? false)
+          ? (locationProvider.pickedAddressLatitude?.isNotEmpty ?? false)
               ? locationProvider.pickedAddressLatitude.toString()
               : locationProvider.currentPosition.latitude.toString()
-              : null,
-          longitude: (splashProvider.configModel?.googleMapStatus ?? false)
-              ? (locationProvider.pickedAddressLongitude?.isNotEmpty ?? false)
+          : null,
+      longitude: (splashProvider.configModel?.googleMapStatus ?? false)
+          ? (locationProvider.pickedAddressLongitude?.isNotEmpty ?? false)
               ? locationProvider.pickedAddressLongitude.toString()
               : locationProvider.currentPosition.longitude.toString()
-              : null,
-          floorNumber: floorNumberController.text,
-          houseNumber: houseNumberController.text,
-          streetNumber: streetNumberController.text,
-        );
+          : null,
+      floorNumber: floorNumberController.text,
+      houseNumber: houseNumberController.text,
+      streetNumber: streetNumberController.text,
+      cityId: selectedCityId,
+      stateId: selectedStateId,
+      countryId: selectedCountryId,
+      pincode: pincodeController!.text.trim(), // ✅ guaranteed not null
+    );
 
-        print('-------(ADDRESS IS )--------${addressModel.toJson().toString()}');
-        print('-------(ADDRESS LAT LONG)-----${locationProvider.pickedAddressLatitude} and ${locationProvider.pickedAddressLongitude}');
+    // ✅ Add or update address
+    if (isUpdateEnable) {
+      addressModel.id = address?.id;
+      addressModel.userId = address?.userId;
+      addressModel.method = 'put';
+      await addressProvider.updateAddress(context,
+          addressModel: addressModel, addressId: addressModel.id);
+    } else {
+      await addressProvider.addAddress(addressModel, context).then((value) {
+        if (value.isSuccess) {
+          if (fromCheckout) {
+            addressProvider.initAddressList();
+            checkoutProvider.setOrderAddressIndex(-1);
+            CheckOutHelper.selectDeliveryAddressAuto(
+                orderType: checkoutProvider.orderType,
+                isLoggedIn: true,
+                lastAddress: null);
+          }
 
+          if (ResponsiveHelper.isDesktop(context) &&
+              Navigator.canPop(context)) {
+            GoRouter.of(context).pop();
+          } else if (!ResponsiveHelper.isDesktop(context)) {
+            Navigator.pop(context);
+          } else {
+            RouteHelper.getAddressRoute(context,
+                action: RouteAction.pushNamedAndRemoveUntil);
+          }
 
-        if (isUpdateEnable) {
-          addressModel.id = address?.id;
-          addressModel.userId = address?.userId;
-          addressModel.method = 'put';
-          await addressProvider.updateAddress(context, addressModel: addressModel, addressId: addressModel.id);
-
+          showCustomSnackBar(value.message, context, isError: false);
         } else {
-
-          print('---------------------(Address Model)------------${addressModel.toJson().toString()}');
-
-          await addressProvider.addAddress(addressModel, context).then((value) async{
-            if (value.isSuccess) {
-
-              if (fromCheckout) {
-                await addressProvider.initAddressList();
-                checkoutProvider.setOrderAddressIndex(-1);
-                print("--------(HERE AM I)--------");
-                CheckOutHelper.selectDeliveryAddressAuto(orderType: checkoutProvider.orderType, isLoggedIn: true, lastAddress: null);
-              }
-
-
-              if(ResponsiveHelper.isDesktop(context) && Navigator.canPop(context)){
-                GoRouter.of(context).pop();
-              }else if(!ResponsiveHelper.isDesktop(context)){
-                Navigator.pop(context);
-              }else{
-                RouteHelper.getAddressRoute(context, action: RouteAction.pushNamedAndRemoveUntil);
-              }
-              showCustomSnackBar(value.message, context, isError: false);
-
-            } else {
-              showCustomSnackBar(value.message, context);
-            }
-          });
+          showCustomSnackBar(value.message, context);
         }
-      }
+      });
     }
   }
 }

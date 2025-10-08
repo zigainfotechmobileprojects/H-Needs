@@ -71,34 +71,34 @@ class DetailsViewWidget extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
             child: Column(children: [
-              CartItemWidget(
-                title: getTranslated('subtotal', context),
-                subTitle: PriceConverterHelper.convertPrice(amount),
-                style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeLarge),
-              ),
-              const SizedBox(height: 10),
+              // CartItemWidget(
+              //   title: getTranslated('subtotal', context),
+              //   subTitle: PriceConverterHelper.convertPrice(amount),
+              //   style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeLarge),
+              // ),
+              // const SizedBox(height: 10),
 
 
-              if(!selfPickup)...[
-                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  Text(
-                    getTranslated('delivery_fee', context),
-                    style: rubikRegular.copyWith(fontSize: Dimensions.fontSizeLarge),
-                  ),
+              // if(!selfPickup)...[
+              //   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              //     Text(
+              //       getTranslated('delivery_fee', context),
+              //       style: rubikRegular.copyWith(fontSize: Dimensions.fontSizeLarge),
+              //     ),
 
-                  Selector<OrderProvider, double?>(
-                    selector: (context, orderProvider) => orderProvider.deliveryCharge,
-                    builder: (context, deliveryCharge, child){
-                      return CustomDirectionalityWidget(
-                        child: Text(
-                          '(+) ${PriceConverterHelper.convertPrice(deliveryCharge ?? 0.0)}',
-                          style: rubikRegular.copyWith(fontSize: Dimensions.fontSizeLarge),
-                        ),
-                      );
-                    },
-                  )
-                ]),
-              ],
+              //     Selector<OrderProvider, double?>(
+              //       selector: (context, orderProvider) => orderProvider.deliveryCharge,
+              //       builder: (context, deliveryCharge, child){
+              //         return CustomDirectionalityWidget(
+              //           child: Text(
+              //             '(+) ${PriceConverterHelper.convertPrice(deliveryCharge ?? 0.0)}',
+              //             style: rubikRegular.copyWith(fontSize: Dimensions.fontSizeLarge),
+              //           ),
+              //         );
+              //       },
+              //     )
+              //   ]),
+              // ],
 
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
@@ -110,7 +110,7 @@ class DetailsViewWidget extends StatelessWidget {
                 builder: (context, deliveryCharge, child) {
                   return CartItemWidget(
                     title: getTranslated('total_amount', context),
-                    subTitle: PriceConverterHelper.convertPrice(amount + (deliveryCharge ?? 0.0)),
+                    subTitle: PriceConverterHelper.convertPrice(amount),
                     style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeExtraLarge),
                   );
                 }

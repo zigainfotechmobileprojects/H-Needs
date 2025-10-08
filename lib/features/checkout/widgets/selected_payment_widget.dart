@@ -54,7 +54,7 @@ class SelectedPaymentWidget extends StatelessWidget {
           )),
 
           Text(
-            PriceConverterHelper.convertPrice(total + (orderProvider.deliveryCharge ?? 0.0)), textDirection: TextDirection.ltr,
+            PriceConverterHelper.convertPrice(total), textDirection: TextDirection.ltr,
             style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).primaryColor),
           )
 

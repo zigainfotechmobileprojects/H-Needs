@@ -23,6 +23,16 @@ class LocationRepo {
     }
   }
 
+  Future<ApiResponseModel> getAllLocationData() async {
+    try {
+      // This uses the constant for the location data endpoint
+      final response = await dioClient?.get(AppConstants.getLocationDataUri);
+      return ApiResponseModel.withSuccess(response!);
+    } catch (e) {
+      return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
+    }
+  }
+
   Future<ApiResponseModel> removeAddressByID(int? id) async {
     try {
       final response = await dioClient!.post(
