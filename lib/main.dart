@@ -11,7 +11,7 @@ import 'package:hneeds_user/features/checkout/providers/checkout_provider.dart';
 import 'package:hneeds_user/features/rate_review/providers/rate_review_provider.dart';
 import 'package:hneeds_user/features/track/providers/order_map_provider.dart';
 import 'package:hneeds_user/helper/notification_helper.dart';
-import 'package:hneeds_user/helper/responsive_helper.dart';
+import 'package:hneeds_user/helper/responsive_helper.dart';    
 import 'package:hneeds_user/features/flash_sale/providers/flash_sale_provider.dart';
 import 'package:hneeds_user/utill/routes.dart';
 import 'package:hneeds_user/common/widgets/third_party_chat_widget.dart';

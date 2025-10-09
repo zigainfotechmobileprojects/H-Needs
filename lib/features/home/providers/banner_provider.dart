@@ -1,3 +1,7 @@
+
+
+import 'dart:developer';
+
 import 'package:hneeds_user/features/home/enums/banner_type_enum.dart';
 import 'package:flutter/material.dart';
 import 'package:hneeds_user/features/home/domain/models/banner_model.dart';
@@ -19,10 +23,12 @@ class BannerProvider extends ChangeNotifier {
   List<Product> get productList => _productList;
 
   Future<void> getBannerList(bool reload) async {
+    print("object==============================================================================");
     if (bannerList == null || reload) {
       ApiResponseModel apiResponse = await bannerRepo!.getBannerList();
       if (apiResponse.response != null &&
           apiResponse.response!.statusCode == 200) {
+           log('API Response banner data: ${apiResponse.response!.data}');
         _bannerList = [];
         _secondaryBannerList = [];
         apiResponse.response!.data.forEach((bannerData) {

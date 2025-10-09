@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:hneeds_user/helper/product_helper.dart';
 import 'package:hneeds_user/helper/responsive_helper.dart';
 import 'package:hneeds_user/localization/language_constrants.dart';
@@ -72,7 +74,9 @@ class _BannerWidgetState extends State<BannerWidget> {
 
         SizedBox(height: (size / 2), child: Consumer<BannerProvider>(
           builder: (context, banner, child) {
+            log("${banner.bannerList}");
             if(banner.bannerList != null) {
+              
               _listLength = banner.bannerList!.length.toDouble();
               if(_listLength == 1) {
                 _progressValue = 1;

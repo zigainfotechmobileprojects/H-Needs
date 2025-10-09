@@ -183,6 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         /// Banner
                         ResponsiveHelper.isDesktop(context) ? const SizedBox() : Consumer<BannerProvider>(
                           builder: (context, banner, child) {
+                            print("==============================");
                             return banner.bannerList == null ? const BannerWidget() : banner.bannerList!.isEmpty ? const SizedBox() : const BannerWidget();
                           },
                         ) ,
