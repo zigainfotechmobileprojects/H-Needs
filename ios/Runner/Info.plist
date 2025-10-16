@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>7.1</string>
 	<key>CFBundleName</key>
-	<string>Hexacom</string>
+	<string>hneeds</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -41,7 +41,7 @@
         Go_to_your_fb_app-&gt;Settings-&gt;Advance-&gt;Security-&gt;Client  token
     </string>
 	<key>FacebookDisplayName</key>
-	<string>Hexacom</string>
+	<string>hneeds</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>

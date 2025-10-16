@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
 
-  hexacom_flutter:
+  hneeds_flutter:
     build:
       context: .
       dockerfile: ${BUILD}

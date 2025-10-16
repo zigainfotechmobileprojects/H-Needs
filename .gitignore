@@ -34,7 +34,6 @@
 .firebase
 firebase.json
 get_changed_files.sh
-android/app/.cxx
 
 
 # Symbolication related
