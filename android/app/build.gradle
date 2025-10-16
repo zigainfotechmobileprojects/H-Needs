@@ -51,8 +51,8 @@ android {
         applicationId "com.hneeds.app"
         minSdkVersion 23
         targetSdkVersion 35
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
+        versionCode = 2
+        versionName = "2.1"
         multiDexEnabled true
     }
 
